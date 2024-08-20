@@ -11,10 +11,13 @@ const Home = () => {
         </div>
         <div className="flex mt-4 ml-8">
           <input
-            type="text"
+            type="url"
             placeholder="Enter URL"
-            className="p-2 rounded border border-[#F3EEEA] bg-[#040D12] text-[#F3EEEA] w-64 mt-4"
+            className="p-2 rounded border border-[#F3EEEA] bg-[#040D12] text-[#F3EEEA] w-[50rem] mt-2 px-2"
           />
+          <button className="bg-transparent  hover:bg-blue-500 ml-5 text-blue-700 font-semibold hover:text-white px-1 py-1  border border-blue-500 hover:border-transparent rounded">
+            Submit
+          </button>
         </div>
       </div>
     </>
