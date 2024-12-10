@@ -1,6 +1,10 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const Result = require("../models/model");
+const XLSX = require("xlsx");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+
 
 const scrapeMultipleResults = async (req, res) => {
   try {
@@ -28,7 +32,7 @@ const scrapeMultipleResults = async (req, res) => {
       }
 
       const paddedNumber = i.toString().padStart(2, "0");
-      const url = `https://ums.cvmu.ac.in/GenerateResultHTML/2877/42110${paddedNumber}.html`;
+      const url = `https://ums.cvmu.ac.in/GenerateResultHTML/2870/42040${paddedNumber}.html`;
 
       console.log(`Scraping URL: ${url}`);
 
@@ -77,4 +81,71 @@ const getResults = async (req, res) => {
   }
 };
 
-module.exports = { scrapeMultipleResults, getResults };
+// Generate Excel
+const downloadExcel = async (req, res) => {
+  try {
+    const results = await Result.find();
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: "No data available for download" });
+    }
+
+    // Create a new workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheetData = [["Name", "SGPA"]]; // Header row
+    results.forEach((result) => worksheetData.push([result.name, result.sgpa]));
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+
+    // Write the workbook to a buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    // Set response headers
+    res.setHeader("Content-Disposition", "attachment; filename=results.xlsx");
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error generating Excel file:", error);
+    res.status(500).send("Error generating Excel file");
+  }
+};
+
+// Generate PDF
+const downloadPDF = async (req, res) => {
+  try {
+    const results = await Result.find();
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: "No data available for download" });
+    }
+
+    // Create a new PDF document
+    const doc = new PDFDocument();
+    const filePath = "results.pdf";
+
+    // Write headers
+    doc.fontSize(18).text("Results", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(12).text("Name", { continued: true }).text("SGPA", { align: "right" });
+    doc.moveDown();
+
+    // Write results
+    results.forEach((result) => {
+      doc.text(result.name, { continued: true }).text(result.sgpa, { align: "right" });
+    });
+
+    // Finalize and pipe the document to response
+    doc.pipe(fs.createWriteStream(filePath));
+    doc.pipe(res);
+    doc.end();
+
+    res.setHeader("Content-Disposition", `attachment; filename=${filePath}`);
+  } catch (error) {
+    console.error("Error generating PDF file:", error);
+    res.status(500).send("Error generating PDF file");
+  }
+};
+
+
+
+module.exports = { scrapeMultipleResults, getResults,downloadExcel,downloadPDF };
