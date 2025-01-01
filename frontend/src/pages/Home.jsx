@@ -1,26 +1,97 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
 const Home = () => {
+  const [baseUrl, setBaseUrl] = useState("");
+  const [start, setStart] = useState(1);
+  const [end, setEnd] = useState(100);
+  const [results, setResults] = useState([]);
+
+  const handleScrape = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/results/scrape", {
+        baseUrl,
+        start,
+        end,
+      });
+      console.log("Scraping Results:", response.data);
+      setResults(response.data); // Update state with results
+    } catch (error) {
+      console.error("Error scraping results:", error);
+    }
+  };
+
+  const downloadExcel = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/results/download/excel", {
+        responseType: "blob", // Important for file download
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "results.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error downloading Excel file:", error);
+    }
+  };
+
+  const downloadPDF = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/results/download/pdf", {
+        responseType: "blob", // Important for file download
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "results.pdf");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error downloading PDF file:", error);
+    }
+  };
+
   return (
-    <>
-      <div className="h-screen bg-[#040D12]">
-        <div className="flex">
-          <h1 className="text-[#F3EEEA] font-semibold text-5xl mt-8 ml-8">
-            College Result
-          </h1>
+    <div>
+      <h1>Result Scraper</h1>
+      <input
+        type="text"
+        placeholder="Enter Base URL"
+        value={baseUrl}
+        onChange={(e) => setBaseUrl(e.target.value)}
+      />
+      <input
+        type="number"
+        placeholder="Start"
+        value={start}
+        onChange={(e) => setStart(Number(e.target.value))}
+      />
+      <input
+        type="number"
+        placeholder="End"
+        value={end}
+        onChange={(e) => setEnd(Number(e.target.value))}
+      />
+      <button onClick={handleScrape}>Scrape Results</button>
+
+      <h2>Scraped Results</h2>
+      <ul>
+        {results.map((result, index) => (
+          <li key={index}>
+            {result.name} - {result.sgpa}
+          </li>
+        ))}
+      </ul>
+
+      {results.length > 0 && (
+        <div>
+          <button onClick={downloadExcel}>Download Excel</button>
+          <button onClick={downloadPDF}>Download PDF</button>
         </div>
-        <div className="flex mt-4 ml-8">
-          <input
-            type="url"
-            placeholder="Enter URL"
-            className="p-2 rounded border border-[#F3EEEA] bg-[#040D12] text-[#F3EEEA] w-[50rem] mt-2 px-2"
-          />
-          <button className="bg-transparent  hover:bg-blue-500 ml-5 text-blue-700 font-semibold hover:text-white px-1 py-1  border border-blue-500 hover:border-transparent rounded">
-            Submit
-          </button>
-        </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
