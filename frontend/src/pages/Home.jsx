@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Container, Row, Col, Form, Button, Table, Alert } from "react-bootstrap";
 
 const Home = () => {
   const [baseUrl, setBaseUrl] = useState("");
@@ -9,22 +10,35 @@ const Home = () => {
 
   const handleScrape = async () => {
     try {
+      // Extract and modify the URL
+      const match = baseUrl.match(/(https:\/\/ums\.cvmu\.ac\.in\/GenerateResultHTML\/\d+\/\d{5})/);
+      if (!match) {
+        console.error("Invalid URL format. Please provide a valid URL.");
+        alert("Invalid URL. Please ensure it follows the format: https://ums.cvmu.ac.in/GenerateResultHTML/{id}/{number}.html");
+        return;
+      }
+  
+      const trimmedUrl = match[0]; // Extracted trimmed URL
+  
       const response = await axios.post("http://localhost:5000/api/results/scrape", {
-        baseUrl,
+        baseUrl: trimmedUrl,
         start,
         end,
       });
+  
       console.log("Scraping Results:", response.data);
       setResults(response.data); // Update state with results
     } catch (error) {
       console.error("Error scraping results:", error);
     }
   };
+  
+  
 
   const downloadExcel = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/results/download/excel", {
-        responseType: "blob", // Important for file download
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -40,7 +54,7 @@ const Home = () => {
   const downloadPDF = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/results/download/pdf", {
-        responseType: "blob", // Important for file download
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -54,44 +68,89 @@ const Home = () => {
   };
 
   return (
-    <div>
-      <h1>Result Scraper</h1>
-      <input
-        type="text"
-        placeholder="Enter Base URL"
-        value={baseUrl}
-        onChange={(e) => setBaseUrl(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Start"
-        value={start}
-        onChange={(e) => setStart(Number(e.target.value))}
-      />
-      <input
-        type="number"
-        placeholder="End"
-        value={end}
-        onChange={(e) => setEnd(Number(e.target.value))}
-      />
-      <button onClick={handleScrape}>Scrape Results</button>
+    <Container className="my-5">
+      <h1 className="text-center mb-4">Result Scraper</h1>
+      <Form>
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="baseUrl">
+              <Form.Label>Base URL</Form.Label>
+              <Form.Control
+  type="text"
+  placeholder="Enter the URL (e.g., https://ums.cvmu.ac.in/GenerateResultHTML/2877/4211082.html)"
+  value={baseUrl}
+  onChange={(e) => setBaseUrl(e.target.value)}
+/>
 
-      <h2>Scraped Results</h2>
-      <ul>
-        {results.map((result, index) => (
-          <li key={index}>
-            {result.name} - {result.sgpa}
-          </li>
-        ))}
-      </ul>
-
-      {results.length > 0 && (
-        <div>
-          <button onClick={downloadExcel}>Download Excel</button>
-          <button onClick={downloadPDF}>Download PDF</button>
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group controlId="start">
+              <Form.Label>Start</Form.Label>
+              <Form.Control
+                type="number"
+                value={start}
+                onChange={(e) => setStart(Number(e.target.value))}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group controlId="end">
+              <Form.Label>End</Form.Label>
+              <Form.Control
+                type="number"
+                value={end}
+                onChange={(e) => setEnd(Number(e.target.value))}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <div className="text-center">
+          <Button variant="primary" onClick={handleScrape}>
+            Scrape Results
+          </Button>
         </div>
+      </Form>
+
+      <hr />
+
+      {results.length > 0 ? (
+        <>
+          <h2 className="mt-4">Scraped Results</h2>
+          <Table striped bordered hover className="mt-3">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>SGPA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{result.name}</td>
+                  <td>{result.sgpa}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+
+          <div className="text-center mt-4">
+            <Button variant="success" onClick={downloadExcel} className="me-2">
+              Download Excel
+            </Button>
+            <Button variant="danger" onClick={downloadPDF}>
+              Download PDF
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Alert variant="info" className="mt-4">
+          No results available. Start scraping to see data.
+        </Alert>
       )}
-    </div>
+    </Container>
   );
 };
 
