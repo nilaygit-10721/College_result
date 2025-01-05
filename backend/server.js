@@ -12,16 +12,27 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "https://college-result-mu.vercel.app/" })); // Replace with your frontend domain
+app.use(cors({ 
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // Use environment variable for flexibility
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 
 // API Routes
 app.use("/api/results", resultRoutes);
 
-// Error handling middleware
+// 404 Not Found Middleware
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// Global Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong on the server" });
+  console.error(`Error: ${err.message}`);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
 });
 
 // Start the server
