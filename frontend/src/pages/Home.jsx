@@ -20,7 +20,7 @@ const Home = () => {
   
       const trimmedUrl = match[0]; // Extracted trimmed URL
   
-      const response = await axios.post("http://localhost:5000/api/results/scrape", {
+      const response = await axios.post("https://college-result-yrxi.onrender.com/api/results/scrape", {
         baseUrl: trimmedUrl,
         start,
         end,
@@ -37,7 +37,7 @@ const Home = () => {
 
   const downloadExcel = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/results/download/excel", {
+      const response = await axios.get("https://college-result-yrxi.onrender.com/api/results/download/excel", {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -53,7 +53,7 @@ const Home = () => {
 
   const downloadPDF = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/results/download/pdf", {
+      const response = await axios.get("https://college-result-yrxi.onrender.com/api/results/download/pdf", {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
