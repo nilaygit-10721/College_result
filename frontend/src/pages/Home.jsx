@@ -10,6 +10,8 @@ import {
   Alert,
   Badge,
   Spinner,
+  Popover,
+  OverlayTrigger,
   Modal,
   Card,
 } from "react-bootstrap";
@@ -30,6 +32,41 @@ const Home = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [stats, setStats] = useState({ total: 0, passed: 0, failed: 0 });
+
+  const urlPopover = (
+    <Popover id="url-popover">
+      <Popover.Header as="h3">URL Format Help</Popover.Header>
+      <Popover.Body>
+        <p>Enter a complete result URL like:</p>
+        <code>https://ums.cvmu.ac.in/GenerateResultHTML/4072/6211001.html</code>
+        <hr />
+        <p>The system will automatically:</p>
+        <ul>
+          <li>Extract the base URL pattern</li>
+          <li>Determine seat number length</li>
+          <li>Generate sequential URLs</li>
+        </ul>
+      </Popover.Body>
+    </Popover>
+  );
+
+  // Popover for range help
+  const rangePopover = (
+    <Popover id="range-popover">
+      <Popover.Header as="h3">Seat Number Range</Popover.Header>
+      <Popover.Body>
+        <p>Enter the starting and ending seat numbers to scan.</p>
+        <p>
+          <strong>Example:</strong>
+        </p>
+        <ul>
+          <li>Start: 6211001</li>
+          <li>End: 6211080</li>
+        </ul>
+        <p>This will check 80 seat numbers (6211001 to 6211080)</p>
+      </Popover.Body>
+    </Popover>
+  );
 
   const handleScrape = async () => {
     try {
@@ -174,6 +211,18 @@ const Home = () => {
                 </Form.Group>
               </Col>
             </Row>
+            <Alert variant="info" className="mt-4">
+              <FaInfoCircle className="me-2" />
+              <strong>Example Input:</strong>
+              <br />
+              URL:{" "}
+              <code>
+                https://ums.cvmu.ac.in/GenerateResultHTML/4072/6211001.html
+              </code>
+              <br />
+              Start: <code>6211001</code>, End: <code>6211080</code>
+            </Alert>
+
             <div className="text-center">
               <Button
                 variant="primary"
