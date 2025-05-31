@@ -92,7 +92,7 @@ const Home = () => {
       const seatNoLength = sampleSeatNo.length; // Typically 7 digits
 
       const response = await axios.post(
-        "http://localhost:5000/api/results/scrape",
+        "https://college-result-yrxi.onrender.com/api/results/scrape",
         {
           baseUrl: basePath,
           start,
@@ -124,7 +124,7 @@ const Home = () => {
   const downloadExcel = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/results/download/excel",
+        "https://college-result-yrxi.onrender.com/api/results/download/excel",
         { responseType: "blob" }
       );
       downloadFile(response.data, "results.xlsx");
@@ -137,7 +137,7 @@ const Home = () => {
   const downloadPDF = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/results/download/pdf",
+        "https://college-result-yrxi.onrender.com/api/results/download/pdf",
         { responseType: "blob" }
       );
       downloadFile(response.data, "results.pdf");
