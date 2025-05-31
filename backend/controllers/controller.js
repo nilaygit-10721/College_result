@@ -45,7 +45,7 @@ const scrapeMultipleResults = async (req, res) => {
       console.log(`Scraping URL: ${url}`);
 
       try {
-        const { data } = await axios.get(url, {});
+        const { data } = await axios.get(url, { httpsAgent });
         const $ = cheerio.load(data);
 
         // Extract basic student info
