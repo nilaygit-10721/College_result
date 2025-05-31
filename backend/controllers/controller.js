@@ -46,7 +46,7 @@ const scrapeMultipleResults = async (req, res) => {
 
       try {
         const { data } = await axios.get(url, {
-          timeout: 10000,
+          timeout: 100000,
           httpsAgent, // Add this line
         });
         const $ = cheerio.load(data);
