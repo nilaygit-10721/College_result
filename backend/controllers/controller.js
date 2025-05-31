@@ -3,6 +3,11 @@ const cheerio = require("cheerio");
 const Result = require("../models/model");
 const XLSX = require("xlsx");
 const PDFDocument = require("pdfkit");
+const https = require("https");
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 // Helper function for creating a padded URL
 const createPaddedUrl = (baseUrl, number) => {
@@ -40,7 +45,10 @@ const scrapeMultipleResults = async (req, res) => {
       console.log(`Scraping URL: ${url}`);
 
       try {
-        const { data } = await axios.get(url, { timeout: 10000 });
+        const { data } = await axios.get(url, {
+          timeout: 10000,
+          httpsAgent, // Add this line
+        });
         const $ = cheerio.load(data);
 
         // Extract basic student info
