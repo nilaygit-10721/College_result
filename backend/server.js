@@ -12,12 +12,21 @@ connectDB();
 const app = express();
 
 // Middleware
+app.use(
+  cors({
+    origin: [
+      "https://college-result-mu.vercel.app", // Your frontend URL
+      "http://localhost:3000", // For local development
+    ],
+    methods: ["GET", "POST", "OPTIONS"], // Include OPTIONS for preflight
+    allowedHeaders: ["Content-Type"],
+    credentials: true,
+  })
+);
 
-const corsOptions = {
-  origin: ["http://localhost:3000", "https://college-result-mu.vercel.app/"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// Handle preflight requests
+app.options("*", cors()); // Enable preflight for all routes
+
 app.use(express.json());
 
 // API Routes
