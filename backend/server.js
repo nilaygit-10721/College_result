@@ -13,7 +13,11 @@ const app = express();
 
 // Middleware
 
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://college-result-mu.vercel.app/"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // API Routes

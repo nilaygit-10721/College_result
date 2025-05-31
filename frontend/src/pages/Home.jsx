@@ -125,6 +125,7 @@ const Home = () => {
     try {
       const response = await axios.get(
         "https://college-result-yrxi.onrender.com/api/results/download/excel",
+
         { responseType: "blob" }
       );
       downloadFile(response.data, "results.xlsx");
