@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [
       "https://college-result-mu.vercel.app", // Your frontend URL
-      "http://localhost:3000", // For local development
+      "http://localhost:5173", // For local development
     ],
     methods: ["GET", "POST", "OPTIONS"], // Include OPTIONS for preflight
     allowedHeaders: ["Content-Type"],
